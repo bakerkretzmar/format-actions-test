@@ -27,8 +27,9 @@ jobs:
               php artisan ide-helper:models --smart-reset --write App\\Models\\${BASH_REMATCH[1]}
             fi
           done
+      # This doesn't do anything but it's necessary so that the next step runs properly,
+      # if we don't run something here `git diff-index` *always* reports changes.
       - run: git diff HEAD
-      - run: git diff-index HEAD
       - id: diff
         run: echo ::set-output name=modified::$(git diff-index --quiet HEAD && echo "false" || echo "true")
       - if: steps.diff.outputs.modified == 'true'
