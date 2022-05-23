@@ -20,7 +20,7 @@ jobs:
           php artisan key:generate
           php artisan migrate --force
       - run: |
-          for f in $(git diff --name-only ${{ github.event.pull_request.base.ref }})
+          for f in $(git diff --name-only ${{ github.event.pull_request.base.ref }} --)
           do
             if [[ $f =~ app/Models/([[:alpha:]]+)\.php ]]
             then
