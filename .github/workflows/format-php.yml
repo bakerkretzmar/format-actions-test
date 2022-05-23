@@ -13,7 +13,7 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: 8.0
-      - uses: ramsey/composer-install@v1
+      - uses: ramsey/composer-install@v2
       - run: |
           cp .env.example .env
           touch database/database.sqlite
@@ -27,6 +27,7 @@ jobs:
               php artisan ide-helper:models --smart-reset --write App\\Models\\${BASH_REMATCH[1]}
             fi
           done
+      - run: git diff HEAD
       - run: git diff-index HEAD
       - id: diff
         run: echo ::set-output name=modified::$(git diff-index --quiet HEAD && echo "false" || echo "true")
