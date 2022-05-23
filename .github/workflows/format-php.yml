@@ -15,14 +15,11 @@ jobs:
         with:
           php-version: 8.0
       - uses: ramsey/composer-install@v2
-      - run: echo "[mysqld]\nskip-grant-tables" | sudo tee -a /etc/mysql/conf.d/mysql.cnf > /dev/null
       - run: |
+          echo "[mysqld]" | sudo tee -a /etc/mysql/conf.d/mysql.cnf > /dev/null
+          echo "skip-grant-tables" | sudo tee -a /etc/mysql/conf.d/mysql.cnf > /dev/null
           sudo service mysql restart
           mysql -u root -e "CREATE DATABASE IF NOT EXISTS \`test-rimsys\`"
-      - run: |
-          # echo "[mysqld]\nskip-grant-tables" | sudo tee -a /etc/mysql/conf.d/mysql.cnf > /dev/null
-          # sudo service mysql restart
-          # mysql -u root -e "CREATE DATABASE IF NOT EXISTS \`test-rimsys\`"
           php artisan migrate --force
       - run: |
           cp .env.example .env
