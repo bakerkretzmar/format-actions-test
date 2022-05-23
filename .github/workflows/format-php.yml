@@ -1,24 +1,47 @@
 name: Format PHP
 on:
   pull_request:
-jobs
+jobs:
   model_docblocks:
+    name: Model Docblocks
     runs-on: ubuntu-latest
     if: github.event.pull_request.draft == false
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.ref }}
       - uses: shivammathur/setup-php@v2
         with:
           php-version: 8.0
-      - uses: ramsey/composer-install@v1
-      - run: php artisan ide-helper:models --smart-reset --write
+      - uses: ramsey/composer-install@v2
+      - run: |
+          echo "[mysqld]" | sudo tee -a /etc/mysql/conf.d/mysql.cnf > /dev/null
+          echo "skip-grant-tables" | sudo tee -a /etc/mysql/conf.d/mysql.cnf > /dev/null
+          sudo service mysql restart
+          mysql -u root -e "CREATE DATABASE IF NOT EXISTS \`test-rimsys\`"
+          php artisan migrate --force
+      - run: |
+          cp .env.example .env
+          touch database/database.sqlite
+          php artisan key:generate
+          php artisan migrate --force
+      - run: |
+          for f in $(git diff --name-only origin/${{ github.event.pull_request.base.ref }} --)
+          do
+            if [[ $f =~ app/Models/([[:alpha:]]+)\.php ]]
+            then
+              php artisan ide-helper:models --smart-reset --write App\\Models\\${BASH_REMATCH[1]}
+            fi
+          done
+      # This doesn't do anything but it's necessary so that the next step runs properly,
+      # if we don't run something here `git diff-index` *always* reports changes.
+      - run: git diff HEAD
       - id: diff
-        run: |
-          git diff-index --name-only HEAD
-          echo ::set-output name=modified::$(git diff-index --quiet HEAD && echo "false" || echo "true")
+        run: echo ::set-output name=modified::$(git diff-index --quiet HEAD && echo "false" || echo "true")
       - if: steps.diff.outputs.modified == 'true'
         run: |
-          # git config --global user.name 'Actions'
-          # git config --global user.email 'actions@github.com'
-          git commit -am "[bot] Update model doc blocks"
+          git config --global user.name github-actions[bot]
+          git config --global user.email github-actions[bot]@users.noreply.github.com
+          git commit -am "Update model docblocks"
           git push
