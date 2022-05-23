@@ -16,10 +16,10 @@ jobs:
           php-version: 8.0
       - uses: ramsey/composer-install@v2
       - run: |
-          cat >> /etc/mysql/conf.d/mysql.cnf<< EOF
-            [mysqld]
-            skip-grant-tables
-            EOF
+          sudo cat >> /etc/mysql/conf.d/mysql.cnf<< EOF
+          [mysqld]
+          skip-grant-tables
+          EOF
           sudo service mysql restart
           mysql -u root -e "CREATE DATABASE IF NOT EXISTS \`test-rimsys\`"
           php artisan migrate
