@@ -6,7 +6,9 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.pull_request.draft == false
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
       - uses: shivammathur/setup-php@v2
         with:
           php-version: 8.0
@@ -23,7 +25,7 @@ jobs:
           echo ::set-output name=modified::$(git diff-index --quiet HEAD && echo "false" || echo "true")
       - if: steps.diff.outputs.modified == 'true'
         run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git config --global user.name github-actions[bot]
+          git config --global user.email github-actions[bot]@users.noreply.github.com
           git commit -am "[bot] Update model doc blocks"
           git push
