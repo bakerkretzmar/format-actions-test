@@ -18,7 +18,14 @@ jobs:
           touch database/database.sqlite
           php artisan key:generate
           php artisan migrate --force
-      - run: php artisan ide-helper:models --smart-reset --write
+      - run: |
+          for f in $(git diff --name-only ${{ github.event.pull_request.base.ref }})
+          do
+            if [[ $f =~ app/Models/([[:alpha:]]+)\.php ]]
+            then
+              php artisan ide-helper:models --smart-reset --write App\\Models\\${BASH_REMATCH[1]}
+            fi
+          done
       - id: diff
         run: |
           git diff-index --name-only HEAD
