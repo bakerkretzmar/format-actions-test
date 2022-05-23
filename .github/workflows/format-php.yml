@@ -23,7 +23,7 @@ jobs:
           echo ::set-output name=modified::$(git diff-index --quiet HEAD && echo "false" || echo "true")
       - if: steps.diff.outputs.modified == 'true'
         run: |
-          # git config --global user.name 'Actions'
-          # git config --global user.email 'actions@github.com'
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git commit -am "[bot] Update model doc blocks"
           git push
