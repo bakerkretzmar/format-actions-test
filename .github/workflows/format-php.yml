@@ -3,6 +3,7 @@ on:
   pull_request:
 jobs:
   model_docblocks:
+    name: Model Docblocks
     runs-on: ubuntu-latest
     if: github.event.pull_request.draft == false
     steps:
@@ -14,6 +15,14 @@ jobs:
         with:
           php-version: 8.0
       - uses: ramsey/composer-install@v2
+      - run: |
+          cat >> /etc/mysql/conf.d/mysql.cnf<< EOF
+            [mysqld]
+            skip-grant-tables
+            EOF
+          sudo service mysql restart
+          mysql -u root -e "CREATE DATABASE IF NOT EXISTS \`test-rimsys\`"
+          php artisan migrate
       - run: |
           cp .env.example .env
           touch database/database.sqlite
