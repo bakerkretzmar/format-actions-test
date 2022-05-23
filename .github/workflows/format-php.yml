@@ -27,12 +27,9 @@ jobs:
               php artisan ide-helper:models --smart-reset --write App\\Models\\${BASH_REMATCH[1]}
             fi
           done
-      - run: git diff HEAD
       - run: git diff-index HEAD
       - id: diff
-        run: |
-          git diff-index --name-only HEAD
-          echo ::set-output name=modified::$(git diff-index --quiet HEAD && echo "false" || echo "true")
+        run: echo ::set-output name=modified::$(git diff-index --quiet HEAD && echo "false" || echo "true")
       - if: steps.diff.outputs.modified == 'true'
         run: |
           git config --global user.name github-actions[bot]
