@@ -15,6 +15,14 @@ jobs:
         with:
           php-version: 8.0
       - uses: ramsey/composer-install@v2
+      - name: 'MySQL - tweak mysql'
+        run: |
+          echo "[mysqld]" | sudo tee -a /etc/mysql/conf.d/mysql.cnf > /dev/null
+          echo "skip-grant-tables" | sudo tee -a /etc/mysql/conf.d/mysql.cnf > /dev/null
+      - name: MySQL - restart and add database
+        run: |
+          sudo service mysql restart
+          mysql -u root -e "CREATE DATABASE IF NOT EXISTS \`test-rimsys\`"
       - run: |
           echo "[mysqld]\nskip-grant-tables" | sudo tee -a /etc/mysql/conf.d/mysql.cnf > /dev/null
           sudo service mysql restart
