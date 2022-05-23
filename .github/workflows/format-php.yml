@@ -1,7 +1,7 @@
 name: Format PHP
 on:
   pull_request:
-jobs
+jobs:
   model_docblocks:
     runs-on: ubuntu-latest
     if: github.event.pull_request.draft == false
